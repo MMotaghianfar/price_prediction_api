@@ -4,7 +4,7 @@ import joblib
 app = Flask(__name__)
 
 # Load your model
-model = joblib.load('price_prediction_api/price_prediction_model.pkl')
+model = joblib.load('price_prediction_model.pkl')
 
 @app.route('/predict', methods=['POST'])
 def predict():
