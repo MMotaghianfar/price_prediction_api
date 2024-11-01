@@ -1,14 +1,15 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import joblib
-import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
-# Load your model
+# Load your model and scaler
 model = joblib.load('price_prediction_model.pkl')
+scaler = joblib.load('scaler.pkl')  # Assuming you saved your scaler during training
 
 @app.route('/')
 def home():
@@ -18,11 +19,10 @@ def home():
 def predict():
     # Parse the input data
     data = request.get_json(force=True)
-    input_data = np.array(data['input']).reshape(1, -1)
+    input_data = np.array(data['data']).reshape(1, -1)
 
     # Scale the input data using the same scaler used for training
-    scaler = StandardScaler()
-    input_data = scaler.fit_transform(input_data)
+    input_data = scaler.transform(input_data)  # Use transform instead of fit_transform
 
     # Make prediction
     prediction = model.predict(input_data)
