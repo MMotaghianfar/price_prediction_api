@@ -2,14 +2,13 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Load your model and scaler
+# Load the trained model and scaler
 model = joblib.load('price_prediction_model.pkl')
-scaler = joblib.load('scaler.pkl')  # Assuming you saved your scaler during training
+scaler = joblib.load('scaler.pkl')
 
 @app.route('/')
 def home():
@@ -17,15 +16,17 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Parse the input data
+    # Parse the input data from the JSON request
     data = request.get_json(force=True)
     input_data = np.array(data['data']).reshape(1, -1)
 
-    # Scale the input data using the same scaler used for training
-    input_data = scaler.transform(input_data)  # Use transform instead of fit_transform
+    # Scale the input data using the loaded scaler
+    input_data = scaler.transform(input_data)
 
-    # Make prediction
+    # Make prediction using the loaded model
     prediction = model.predict(input_data)
+    
+    # Return the prediction as JSON
     return jsonify({'prediction': prediction.tolist()})
 
 if __name__ == '__main__':
